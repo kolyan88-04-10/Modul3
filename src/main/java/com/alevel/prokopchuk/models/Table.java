@@ -6,13 +6,21 @@ public class Table {
     List<Column> columns;
     List<Node> nodes;
 
-    public void addColumn(){}
+    public Table addColumn(){
+        return this;
+    }
 
-    public void removeColumn(){}
+    public Table removeColumn(){
+        return this;
+    }
 
-    public void addNode(){}
+    public Table addNode(){
+        return this;
+    }
 
-    public void removeNode(){}
+    public Table removeNode(){
+        return this;
+    }
 
 
 }
