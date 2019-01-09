@@ -40,6 +40,12 @@ public class Table extends Model {
         return this;
     }
 
+    public Table renameColumn(Column column, String newName){
+        tableDao.renameColumn(this, column, newName);
+        column.setName(newName);
+        return this;
+    }
+
     public Node newNode(){
         Node node = new Node();
         tableDao.addNode(this, node);

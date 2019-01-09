@@ -26,6 +26,7 @@ public class Main {
         node2.insert(column2, "value2 column2");
 
         table1.removeNode(node2);
+        table1.renameColumn(column1, "column1renamed");
         table1.removeColumn(column1);
         database.removeTable(table1);
     }

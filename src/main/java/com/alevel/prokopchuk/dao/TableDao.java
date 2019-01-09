@@ -7,13 +7,13 @@ import com.alevel.prokopchuk.models.Table;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Map;
 
 public class TableDao extends AbstractDao<Table> {
     private static final String SQL_INSERT_INTO_TABLE = "INSERT INTO ";
     private static final String SQL_DELETE_RECORD = "DELETE FROM %s WHERE ID = %d;";
     private static final String SQL_INSERT_COLUMN_INTO_TABLE = "ALTER TABLE %s ADD %s %s;";
     private static final String SQL_REMOVE_COLUMN_FROM_TABLE = "ALTER TABLE %s DROP COLUMN %s;";
+    private static final String SQL_RENAME_COLUMN = "ALTER TABLE %s RENAME COLUMN %s TO %s;";
 
     @Override
     public boolean create(Table model) {
@@ -38,28 +38,6 @@ public class TableDao extends AbstractDao<Table> {
         }
         return false;
     }
-
-//    public boolean addNode(Table table, Table.Node node) {
-//        StringBuilder queryBuilder = new StringBuilder(SQL_INSERT_INTO_TABLE);
-//        queryBuilder.append(table.getName()).append(" (");
-//        StringBuilder valuesBuilder = new StringBuilder(" VALUES (");
-//        for (Map.Entry<Column, String> entry : node.getValues().entrySet()) {
-//            queryBuilder.append(entry.getKey().getName()).append(", ");
-//            valuesBuilder.append('\'').append(entry.getValue()).append('\'').append(", ");
-//        }
-//        queryBuilder.setLength(queryBuilder.length() - 2);
-//        queryBuilder.append(')');
-//        valuesBuilder.setLength(valuesBuilder.length() - 2);
-//        valuesBuilder.append(");");
-//        queryBuilder.append(valuesBuilder.toString());
-//        try (Connection connection = ConnectorDB.getConnection();
-//             Statement statement = connection.createStatement()){
-//            statement.executeUpdate(queryBuilder.toString());
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//        return false;
-//    }
 
     public boolean removeNode(Table table, Table.Node node) {
         String query = String.format(SQL_DELETE_RECORD, table.getName(), node.getId());
@@ -95,6 +73,20 @@ public class TableDao extends AbstractDao<Table> {
              Statement statement = connection.createStatement()){
             statement.executeUpdate(query);
             System.out.println(column + " was removed from table: " + table.getName());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean renameColumn(Table table, Column column, String newName) {
+        String query = String.format(SQL_RENAME_COLUMN, table.getName(),
+                column.getName(), newName);
+        try (Connection connection = ConnectorDB.getConnection();
+             Statement statement = connection.createStatement()){
+            statement.executeUpdate(query);
+            System.out.println(column + " was in table: " + table.getName()
+                    + " was renamed to " + newName);
         } catch (SQLException e) {
             e.printStackTrace();
         }
