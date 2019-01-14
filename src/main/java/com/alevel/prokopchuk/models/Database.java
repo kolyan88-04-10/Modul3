@@ -19,6 +19,7 @@ public class Database extends Model {
         this.databaseDao = databaseDao;
         this.tableDao = tableDao;
         this.nodeDao = nodeDao;
+        loadTables();
     }
 
     public void addTable(Table table){

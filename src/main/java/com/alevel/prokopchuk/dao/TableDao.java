@@ -5,6 +5,10 @@ import com.alevel.prokopchuk.models.Column;
 import com.alevel.prokopchuk.models.Table;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class TableDao extends AbstractDao<Table> {
     private static final String SQL_INSERT_INTO_TABLE = "INSERT INTO ";
@@ -14,6 +18,7 @@ public class TableDao extends AbstractDao<Table> {
     private static final String SQL_RENAME_COLUMN = "ALTER TABLE %s RENAME COLUMN %s TO %s;";
     private static final String SQL_GET_COLUMNS = "SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.columns\n" +
             "WHERE TABLE_NAME = ?;";
+    private static final String SQL_GET_VALUES = "SELECT * FROM ?_;";
 
     @Override
     public boolean create(Table model) {
@@ -95,19 +100,35 @@ public class TableDao extends AbstractDao<Table> {
 
     public void loadTable(Table table) {
         try (Connection connection = ConnectorDB.getConnection();
-             PreparedStatement ps = connection.prepareStatement(SQL_GET_COLUMNS)){
-            ps.setString(1, table.getName());
-            ResultSet rs = ps.executeQuery();
-            Column column;
+             PreparedStatement psToGetColumns = connection.prepareStatement(SQL_GET_COLUMNS);
+             PreparedStatement psToGetVelues = connection.prepareStatement(SQL_GET_VALUES)){
+            psToGetColumns.setString(1, table.getName());
+            ResultSet rs = psToGetColumns.executeQuery();
+            List<Column> columns = new ArrayList<>();
             rs.next();
             while (rs.next()) {
                 String columnName = rs.getString("COLUMN_NAME");
                 String columnType = rs.getString("DATA_TYPE");
-                column = new Column(columnName, columnType);
-                table.addColumn(column);
+                Column column = new Column(columnName, columnType);
+                columns.add(column);
             }
-            System.out.println(column + " was in table: " + table.getName()
-                    + " was renamed to " + newName);
+
+            psToGetVelues.setString(1, table.getName());
+            rs = psToGetVelues.executeQuery();
+            List<Table.Node> nodes = new ArrayList<>();
+            Map<Column, String> nodeValues = new HashMap<>();
+            String value;
+            Table.Node node;
+            while (rs.next()) {
+                for (Column column : columns) {
+                    value = rs.getString(column.getName());
+                    nodeValues.put(column, value);
+                }
+                node = table.new Node();
+                node.setValues(nodeValues);
+                nodes.add(node);
+            }
+            table.setNodes(nodes);
         } catch (SQLException e) {
             e.printStackTrace();
         }

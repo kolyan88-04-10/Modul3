@@ -85,6 +85,11 @@ public class Table extends Model {
         private Map<Column, String> values = new HashMap<>();
         private int id;
 
+        public Node(Map<Column, String> values) {
+            id = ++Table.this.nodeCounter;
+            this.values = values;
+        }
+
         public Node() {
             id = ++Table.this.nodeCounter;
             for (Column column : Table.this.columns) {
