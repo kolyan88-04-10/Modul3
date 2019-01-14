@@ -58,6 +58,10 @@ public class Table extends Model {
         return this;
     }
 
+    public void load() {
+        tableDao.loadTable(this);
+    }
+
     public List<Column> getColumns() {
         return columns;
     }
@@ -73,6 +77,8 @@ public class Table extends Model {
     public void setNodes(List<Node> nodes) {
         this.nodes = nodes;
     }
+
+
 
     public class Node {
 

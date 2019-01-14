@@ -6,14 +6,20 @@ import com.alevel.prokopchuk.models.Column;
 import com.alevel.prokopchuk.models.Table;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class DatabaseDao extends AbstractDao<Table> {
 
     private static final String SQL_CREATE_TABLE_QUERY = "CREATE TABLE IF NOT EXISTS %s (ID INT)";
     private static final String SQL_DROP_TABLE_QUERY = "DROP TABLE IF EXISTS %s";
+    private static final String SQL_LOAD_TABLES_NAMES_QUERY = "SELECT TABLE_NAME \n" +
+            "FROM INFORMATION_SCHEMA.TABLES\n" +
+            "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='restaurant';";
 
 
     public boolean create(Table table) {
@@ -58,5 +64,20 @@ public class DatabaseDao extends AbstractDao<Table> {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<String> loadTablesNames() {
+        List<String> tablesNames = new ArrayList<>();
+        try (Connection connection = ConnectorDB.getConnection();
+             Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(SQL_LOAD_TABLES_NAMES_QUERY)){
+            while (resultSet.next()) {
+                tablesNames.add(resultSet.getString(1));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return tablesNames;
     }
 }

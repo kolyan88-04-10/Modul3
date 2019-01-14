@@ -12,7 +12,7 @@ public class Main {
         DatabaseDao databaseDao = new DatabaseDao();
         TableDao tableDao = new TableDao();
         NodeDao nodeDao = new NodeDao();
-        Database database = new Database("Database1", databaseDao);
+        Database database = new Database("Database1", databaseDao, tableDao, nodeDao);
         Table table1 = new Table("Table1", tableDao, nodeDao);
         database.addTable(table1);
         Column column1 = new Column("column1", "VARCHAR(100)");
