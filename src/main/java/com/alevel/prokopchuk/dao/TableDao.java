@@ -15,10 +15,10 @@ public class TableDao extends AbstractDao<Table> {
     private static final String SQL_DELETE_RECORD = "DELETE FROM %s WHERE ID = %d;";
     private static final String SQL_INSERT_COLUMN_INTO_TABLE = "ALTER TABLE %s ADD %s %s;";
     private static final String SQL_REMOVE_COLUMN_FROM_TABLE = "ALTER TABLE %s DROP COLUMN %s;";
-    private static final String SQL_RENAME_COLUMN = "ALTER TABLE %s RENAME COLUMN %s TO %s;";
-    private static final String SQL_GET_COLUMNS = "SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.columns\n" +
+    private static final String SQL_RENAME_COLUMN = "ALTER TABLE %s CHANGE %s %s %s;";
+    private static final String SQL_GET_COLUMNS = "SELECT DISTINCT COLUMN_NAME, DATA_TYPE FROM information_schema.columns\n" +
             "WHERE TABLE_NAME = ?;";
-    private static final String SQL_GET_VALUES = "SELECT * FROM ?_;";
+    private static final String SQL_GET_VALUES = "SELECT * FROM %s;";
 
     @Override
     public boolean create(Table model) {
@@ -86,7 +86,7 @@ public class TableDao extends AbstractDao<Table> {
 
     public boolean renameColumn(Table table, Column column, String newName) {
         String query = String.format(SQL_RENAME_COLUMN, table.getName(),
-                column.getName(), newName);
+                column.getName(), newName, column.getTypeName());
         try (Connection connection = ConnectorDB.getConnection();
              Statement statement = connection.createStatement()){
             statement.executeUpdate(query);
@@ -101,34 +101,31 @@ public class TableDao extends AbstractDao<Table> {
     public void loadTable(Table table) {
         try (Connection connection = ConnectorDB.getConnection();
              PreparedStatement psToGetColumns = connection.prepareStatement(SQL_GET_COLUMNS);
-             PreparedStatement psToGetVelues = connection.prepareStatement(SQL_GET_VALUES)){
+             Statement stGetValues = connection.createStatement()){
             psToGetColumns.setString(1, table.getName());
             ResultSet rs = psToGetColumns.executeQuery();
             List<Column> columns = new ArrayList<>();
-            rs.next();
             while (rs.next()) {
                 String columnName = rs.getString("COLUMN_NAME");
-                String columnType = rs.getString("DATA_TYPE");
-                Column column = new Column(columnName, columnType);
-                columns.add(column);
+                if (!columnName.equalsIgnoreCase("id")) {
+                    String columnType = rs.getString("DATA_TYPE");
+                    Column column = new Column(columnName, columnType);
+                    columns.add(column);
+                }
             }
-
-            psToGetVelues.setString(1, table.getName());
-            rs = psToGetVelues.executeQuery();
-            List<Table.Node> nodes = new ArrayList<>();
+            table.setColumns(columns);
+            rs = stGetValues.executeQuery(String.format(SQL_GET_VALUES, table.getName()));
             Map<Column, String> nodeValues = new HashMap<>();
             String value;
-            Table.Node node;
+            int nodeId;
             while (rs.next()) {
                 for (Column column : columns) {
                     value = rs.getString(column.getName());
                     nodeValues.put(column, value);
                 }
-                node = table.new Node();
-                node.setValues(nodeValues);
-                nodes.add(node);
+                nodeId = rs.getInt("id");
+                table.new Node(nodeValues, nodeId);
             }
-            table.setNodes(nodes);
         } catch (SQLException e) {
             e.printStackTrace();
         }

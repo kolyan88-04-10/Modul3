@@ -46,8 +46,8 @@ public class Database extends Model {
         for (String tableName : tablesNames) {
             Table table = new Table(tableName, tableDao, nodeDao);
             table.load();
-            tables.add(table);
             System.out.println("Table " + tableName + " was loaded from database");
+            tables.add(table);
         }
         System.out.println(tablesNames.size() + " tables was loaded from database");
     }

@@ -19,7 +19,7 @@ public class DatabaseDao extends AbstractDao<Table> {
     private static final String SQL_DROP_TABLE_QUERY = "DROP TABLE IF EXISTS %s";
     private static final String SQL_LOAD_TABLES_NAMES_QUERY = "SELECT TABLE_NAME \n" +
             "FROM INFORMATION_SCHEMA.TABLES\n" +
-            "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='restaurant';";
+            "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_SCHEMA='tables';";
 
 
     public boolean create(Table table) {

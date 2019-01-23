@@ -13,21 +13,21 @@ public class Main {
         TableDao tableDao = new TableDao();
         NodeDao nodeDao = new NodeDao();
         Database database = new Database("Database1", databaseDao, tableDao, nodeDao);
-        Table table1 = new Table("Table1", tableDao, nodeDao);
-        database.addTable(table1);
+        Table table2 = new Table("Table2", tableDao, nodeDao);
+        database.addTable(table2);
         Column column1 = new Column("column1", "VARCHAR(100)");
         Column column2 = new Column("column2", "VARCHAR(100)");
-        table1.addColumn(column1).addColumn(column2);
-        Table.Node node1 = table1.newNode();
+        table2.addColumn(column1).addColumn(column2);
+        Table.Node node1 = table2.newNode();
         node1.insert(column1, "value1 column1");
         node1.insert(column2, "value1 column2");
-        Table.Node node2 = table1.newNode();
+        Table.Node node2 = table2.newNode();
         node2.insert(column1, "value2 column1");
         node2.insert(column2, "value2 column2");
 
-        table1.removeNode(node2);
-        table1.renameColumn(column1, "column1renamed");
-        table1.removeColumn(column1);
-        database.removeTable(table1);
+        table2.removeNode(node2);
+        table2.renameColumn(column1, "column1renamed");
+        table2.removeColumn(column1);
+        database.removeTable(table2);
     }
 }
