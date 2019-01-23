@@ -55,6 +55,8 @@ public class Table extends Model {
     public Table removeNode(Node node){
         tableDao.removeNode(this, node);
         nodes.remove(node);
+        nodeCounter--;
+        
         return this;
     }
 

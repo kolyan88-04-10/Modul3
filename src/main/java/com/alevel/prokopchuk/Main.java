@@ -21,9 +21,14 @@ public class Main {
         Table.Node node1 = table2.newNode();
         node1.insert(column1, "value1 column1");
         node1.insert(column2, "value1 column2");
+
         Table.Node node2 = table2.newNode();
         node2.insert(column1, "value2 column1");
         node2.insert(column2, "value2 column2");
+
+        Table.Node node3 = table2.newNode();
+        node3.insert(column1, "value3 column1");
+        node3.insert(column2, "value3 column2");
 
         table2.removeNode(node2);
         table2.renameColumn(column1, "column1renamed");
