@@ -18,6 +18,8 @@ public class TableDao extends AbstractDao<Table> {
     private static final String SQL_RENAME_COLUMN = "ALTER TABLE %s CHANGE %s %s %s;";
     private static final String SQL_GET_COLUMNS = "SELECT DISTINCT COLUMN_NAME, DATA_TYPE FROM information_schema.columns\n" +
             "WHERE TABLE_NAME = ?;";
+    // Need to specify table name using String.format()
+    private static final String SQL_UPDATE_ID = "UPDATE %s SET ID = ? WHERE ID = ?";
     private static final String SQL_GET_VALUES = "SELECT * FROM %s;";
 
     @Override
@@ -45,12 +47,24 @@ public class TableDao extends AbstractDao<Table> {
     }
 
     public boolean removeNode(Table table, Table.Node node) {
-        String query = String.format(SQL_DELETE_RECORD, table.getName(), node.getId());
-
+        String tableName = table.getName();
+        String query = String.format(SQL_DELETE_RECORD, tableName, node.getId());
+        int nodeId = node.getId();
+        int nodeCounter = table.getNodeCounter();
+        String updateNodeIdQuery = String.format(SQL_UPDATE_ID, tableName);
         try (Connection connection = ConnectorDB.getConnection();
-             Statement statement = connection.createStatement()){
+             Statement statement = connection.createStatement();
+             PreparedStatement updateIdStatement = connection.prepareStatement(
+                     updateNodeIdQuery)){
             statement.executeUpdate(query);
             System.out.println(node + " was removed from table: " + table.getName());
+            if (nodeId <= table.getNodeCounter()) {
+                for (int i = nodeId; i <= nodeCounter; i++) {
+                    updateIdStatement.setInt(1, i);
+                    updateIdStatement.setInt(2, i + 1);
+                    updateIdStatement.executeUpdate();
+                }
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

@@ -55,8 +55,13 @@ public class Table extends Model {
     public Table removeNode(Node node){
         tableDao.removeNode(this, node);
         nodes.remove(node);
+        int nodeId = node.getId();
+        if (nodeId < nodeCounter) {
+            for (int i = nodeId; i < nodeCounter; i++) {
+                nodes.get(i + 1).setId(i);
+            }
+        }
         nodeCounter--;
-        
         return this;
     }
 
@@ -80,7 +85,13 @@ public class Table extends Model {
         this.nodes = nodes;
     }
 
+    public int getNodeCounter() {
+        return nodeCounter;
+    }
 
+    public void setNodeCounter(int nodeCounter) {
+        this.nodeCounter = nodeCounter;
+    }
 
     public class Node {
 
@@ -125,6 +136,8 @@ public class Table extends Model {
         public Table getTable() {
             return Table.this;
         }
+
+
 
         @Override
         public String toString() {

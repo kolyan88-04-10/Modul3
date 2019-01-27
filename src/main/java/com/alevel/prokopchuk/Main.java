@@ -29,6 +29,7 @@ public class Main {
         Table.Node node3 = table2.newNode();
         node3.insert(column1, "value3 column1");
         node3.insert(column2, "value3 column2");
+        
 
         table2.removeNode(node2);
         table2.renameColumn(column1, "column1renamed");
